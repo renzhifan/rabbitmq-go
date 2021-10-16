@@ -7,7 +7,7 @@ import (
 )
 
 // 错误处理
-func failOnError(err error, msg string) {
+func failOnError11(err error, msg string) {
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
 	}
@@ -16,12 +16,12 @@ func failOnError(err error, msg string) {
 func main() {
 	// 连接RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError(err, "Failed to connect to RabbitMQ")
+	failOnError11(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	// 创建信道
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	failOnError11(err, "Failed to open a channel")
 	defer ch.Close()
 
 	// 声明要操作的队列
@@ -33,7 +33,7 @@ func main() {
 		false,   // no-wait
 		nil,     // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
+	failOnError11(err, "Failed to declare a queue")
 
 	// 要发送的消息内容
 	body := "Hello World!"
@@ -48,6 +48,6 @@ func main() {
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
-	failOnError(err, "Failed to publish a message")
+	failOnError11(err, "Failed to publish a message")
 	log.Printf(" [x] Sent %s", body)
 }

@@ -5,11 +5,17 @@ import (
 	"log"
 	"time"
 )
+// 错误处理
+func failOnError22(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+	}
+}
 
 func main() {
 	// 连接RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError(err, "Failed to connect to RabbitMQ")
+	failOnError22(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	// 通过协程创建5个消费者
@@ -17,7 +23,7 @@ func main() {
 		go func(number int) {
 			// 创建一个rabbitmq信道, 每个消费者一个
 			ch, err := conn.Channel()
-			failOnError(err, "Failed to open a channel")
+			failOnError22(err, "Failed to open a channel")
 			defer ch.Close()
 
 			// 声明需要操作的队列
@@ -29,7 +35,7 @@ func main() {
 				false,   // no-wait
 				nil,     // arguments
 			)
-			failOnError(err, "Failed to declare a queue")
+			failOnError22(err, "Failed to declare a queue")
 
 			// 创建一个消费者
 			msgs, err := ch.Consume(
@@ -41,7 +47,7 @@ func main() {
 				false,  // no-wait
 				nil,    // args
 			)
-			failOnError(err, "Failed to register a consumer")
+			failOnError22(err, "Failed to register a consumer")
 
 			// 循环处理消息
 			for d := range msgs {
