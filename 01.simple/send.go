@@ -4,24 +4,18 @@ package main
 import (
 	"github.com/streadway/amqp"
 	"log"
+	"rabbitmq-test/utils"
 )
-
-// 错误处理
-func failOnError11(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
 
 func main() {
 	// 连接RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError11(err, "Failed to connect to RabbitMQ")
+	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	// 创建信道
 	ch, err := conn.Channel()
-	failOnError11(err, "Failed to open a channel")
+	utils.FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	// 声明要操作的队列
@@ -33,7 +27,7 @@ func main() {
 		false,   // no-wait
 		nil,     // arguments
 	)
-	failOnError11(err, "Failed to declare a queue")
+	utils.FailOnError(err, "Failed to declare a queue")
 
 	// 要发送的消息内容
 	body := "Hello World!"
@@ -48,6 +42,6 @@ func main() {
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
-	failOnError11(err, "Failed to publish a message")
+	utils.FailOnError(err, "Failed to publish a message")
 	log.Printf(" [x] Sent %s", body)
 }

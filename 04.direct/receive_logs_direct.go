@@ -1,25 +1,19 @@
 package main
 
 import (
+	"github.com/streadway/amqp"
 	"log"
 	"os"
-
-	"github.com/streadway/amqp"
+	"rabbitmq-test/utils"
 )
-
-func failOnError42(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
 
 func main() {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError42(err, "Failed to connect to RabbitMQ")
+	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError42(err, "Failed to open a channel")
+	utils.FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	err = ch.ExchangeDeclare(
@@ -31,7 +25,7 @@ func main() {
 		false,         // no-wait
 		nil,           // arguments
 	)
-	failOnError42(err, "Failed to declare an exchange")
+	utils.FailOnError(err, "Failed to declare an exchange")
 
 	q, err := ch.QueueDeclare(
 		"",    // name
@@ -41,7 +35,7 @@ func main() {
 		false, // no-wait
 		nil,   // arguments
 	)
-	failOnError42(err, "Failed to declare a queue")
+	utils.FailOnError(err, "Failed to declare a queue")
 
 	if len(os.Args) < 2 {
 		log.Printf("Usage: %s [info] [warning] [error]", os.Args[0])
@@ -56,7 +50,7 @@ func main() {
 			"logs_direct", // exchange
 			false,
 			nil)
-		failOnError42(err, "Failed to bind a queue")
+		utils.FailOnError(err, "Failed to bind a queue")
 	}
 
 	msgs, err := ch.Consume(
@@ -68,7 +62,7 @@ func main() {
 		false,  // no wait
 		nil,    // args
 	)
-	failOnError42(err, "Failed to register a consumer")
+	utils.FailOnError(err, "Failed to register a consumer")
 
 	forever := make(chan bool)
 

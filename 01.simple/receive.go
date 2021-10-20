@@ -4,22 +4,18 @@ package main
 import (
 	"github.com/streadway/amqp"
 	"log"
+	"rabbitmq-test/utils"
 )
-func failOnError12(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
 
 func main() {
 	// 连接RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError12(err, "Failed to connect to RabbitMQ")
+	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	// 创建信道
 	ch, err := conn.Channel()
-	failOnError12(err, "Failed to open a channel")
+	utils.FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	// 声明要操作的队列
@@ -31,7 +27,7 @@ func main() {
 		false,   // no-wait
 		nil,     // arguments
 	)
-	failOnError12(err, "Failed to declare a queue")
+	utils.FailOnError(err, "Failed to declare a queue")
 
 	// 创建消息消费者
 	msgs, err := ch.Consume(
@@ -43,7 +39,7 @@ func main() {
 		false,  // no-wait
 		nil,    // args
 	)
-	failOnError12(err, "Failed to register a consumer")
+	utils.FailOnError(err, "Failed to register a consumer")
 
 	// 循环拉取队列中的消息
 	for d := range msgs {

@@ -1,25 +1,21 @@
 package main
 
 import (
-	"log"
-
 	"github.com/streadway/amqp"
+	"log"
+	"rabbitmq-test/utils"
 )
 
-func failOnError31(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
+
 func main() {
 	// 连接rabbitmq
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError31(err, "Failed to connect to RabbitMQ")
+	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	// 创建信道，通常一个消费者一个
 	ch, err := conn.Channel()
-	failOnError31(err, "Failed to open a channel")
+	utils.FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	// 声明交换机
@@ -32,7 +28,7 @@ func main() {
 		false,     // no-wait
 		nil,       // arguments
 	)
-	failOnError31(err, "Failed to declare an exchange")
+	utils.FailOnError(err, "Failed to declare an exchange")
 
 	// 声明需要操作的队列
 	q, err := ch.QueueDeclare(
@@ -43,7 +39,7 @@ func main() {
 		false, // no-wait
 		nil,   // arguments
 	)
-	failOnError31(err, "Failed to declare a queue")
+	utils.FailOnError(err, "Failed to declare a queue")
 
 	// 队列绑定指定的交换机
 	err = ch.QueueBind(
@@ -52,7 +48,7 @@ func main() {
 		"exchangeTest1", // 交换机名字，需要跟消息发送端定义的交换器保持一致
 		false,
 		nil)
-	failOnError31(err, "Failed to bind a queue")
+	utils.FailOnError(err, "Failed to bind a queue")
 
 	// 创建消费者
 	msgs, err := ch.Consume(
@@ -64,7 +60,7 @@ func main() {
 		false,  // no-wait
 		nil,    // args
 	)
-	failOnError31(err, "Failed to register a consumer")
+	utils.FailOnError(err, "Failed to register a consumer")
 
 	// 循环消费队列中的消息
 	for d := range msgs {

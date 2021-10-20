@@ -1,26 +1,20 @@
 package main
 
 import (
+	"github.com/streadway/amqp"
 	"log"
 	"os"
+	"rabbitmq-test/utils"
 	"strings"
-
-	"github.com/streadway/amqp"
 )
-
-func failOnError41(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
 
 func main() {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError41(err, "Failed to connect to RabbitMQ")
+	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError41(err, "Failed to open a channel")
+	utils.FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	err = ch.ExchangeDeclare(
@@ -32,7 +26,7 @@ func main() {
 		false,         // no-wait
 		nil,           // arguments
 	)
-	failOnError41(err, "Failed to declare an exchange")
+	utils.FailOnError(err, "Failed to declare an exchange")
 
 	body := bodyFrom(os.Args)
 	err = ch.Publish(
@@ -44,7 +38,7 @@ func main() {
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
-	failOnError41(err, "Failed to publish a message")
+	utils.FailOnError(err, "Failed to publish a message")
 
 	log.Printf(" [x] Sent %s", body)
 }

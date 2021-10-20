@@ -3,22 +3,18 @@ package main
 import (
 	"github.com/streadway/amqp"
 	"log"
+	"rabbitmq-test/utils"
 )
-func failOnError32(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
 
 func main() {
 	// 连接rabbitmq
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/guest")
-	failOnError32(err, "Failed to connect to RabbitMQ")
+	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	// 创建信道
 	ch, err := conn.Channel()
-	failOnError32(err, "Failed to open a channel")
+	utils.FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	// 声明交换机
@@ -31,7 +27,7 @@ func main() {
 		false,    // no-wait
 		nil,      // arguments
 	)
-	failOnError32(err, "Failed to declare an exchange")
+	utils.FailOnError(err, "Failed to declare an exchange")
 
 	// 消息内容
 	body := "Hello abc"
